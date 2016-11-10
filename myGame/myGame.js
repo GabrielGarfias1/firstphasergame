@@ -2,7 +2,7 @@
 
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
-var game_state = {}
+var game_state = {};
 
 
 game_state.main = function() {};
@@ -10,17 +10,17 @@ game_state.main.prototype = {
 
 
     preload: function() {
-        game.load.image('sky', 'assets/sky.png');
+        game.load.image('sky', 'assets/volcano.jpg');
         game.load.image('ground', 'assets/platform.png');
-        game.load.image('star', 'assets/star.png');
+        game.load.image('star', 'assets/sprite5.png' );
         game.load.spritesheet('dude', 'assets/sprite2.png', 150, 150);
     },
 
 
     create: function() {
-        // We're going to be using physis, so enable the Arcade Physics system
+        // We're going to be using physics, so enable the Arcade Physics system
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        game.add.sprite(0, 0, 'sky');
+        game.add.sprite(0, 122  , 'sky');
         // The platforms group contains the ground and the 2 ledges we can jump on 
         this.platforms = game.add.group();
         // We will enable phyics for any object that is created in this group
@@ -32,16 +32,18 @@ game_state.main.prototype = {
         // This stops it from falling away when you jump on it
         ground.body.immovable = true;
         // Now let's create two ledges
-        var ledge = this.platforms.create(300, 200, 'ground');
+        var ledge = this.platforms.create(500, 400, 'ground');
         ledge.body.immovable = true;
-        var ledge = this.platforms.create(0, 400, 'ground');
+        ledge = this.platforms.create(-100, 400, 'ground');
+        ledge.body.immovable = true;
+        ledge = this.platforms.create(200, 200, 'ground');
         ledge.body.immovable = true;
         // This.player and its settings
         this.player = game.add.sprite(32, game.world.height - 200, 'dude');
         // We need to enable physics on the this.player
         game.physics.arcade.enable(this.player);
         // Player physics properties. Give the little guy a slight bounce.
-        this.player.body.bounce.y = 0.5;
+        this.player.body.bounce.y = 0.1;
         this.player.body.gravity.y = 300;
         this.player.body.collideWorldBounds = true;
         // Our two animations, walking left and right.
@@ -56,19 +58,22 @@ game_state.main.prototype = {
         this.stars = game.add.group();
         // We will enable physics for any star that is created in this group
         this.stars.enableBody = true;
+        this.stararr = [];
         // Here we'll create 12 of them evenly spaced apart
-        for (var i = 0; i < 60; i++) {
+        for (var i = 0; i < 80; i++) {
             // Create a star inside of the 'this.stars' group
             var star = this.stars.create(i * 9, 0, 'star');
             // Let gravity do its thing
             star.body.gravity.y = 300;
             // This just gives each star a slightly random bounce value
             star.body.bounce.y = 0.6 + Math.random() * 0.4;
+            star.body.setSize(20, 20, 40, 40);
+            this.stararr.push(star);
         }
         // The this.score
         this.scoreText = game.add.text(16, 16, 'score: 0', {
             fontSize: '32px',
-            fill: '#000'
+            fill: '#FFFFFF'
         });
 this.score = 0;
 
@@ -77,6 +82,7 @@ this.score = 0;
 
 
     update: function() {
+       
         // Collide the player and the platforms
         game.physics.arcade.collide(this.player, this.platforms);
         
@@ -107,7 +113,9 @@ this.score = 0;
         
         // Checks to see if the this.player overlaps with any of the this.stars, if he does call the collectStar function 
         game.physics.arcade.overlap(this.player, this.stars, this.collectStar, null, this);
-        game.debug.body(this.player);
+        if (this.score>=500){
+            game.state.start("end");
+        }
     
     },
     
@@ -119,23 +127,18 @@ this.score = 0;
         this.scoreText.text = "Score: " + this.score;
         star.kill();
             // Create a star inside of the 'this.stars' group
-            star = this.stars.create(Math.random() * 800, 0, 'star');
+            star = this.stars.create(Math.random() * 800, 0 , 'star');
             // Let gravity do its thing
             star.body.gravity.y = 300;
             // This just gives each star a slightly random bounce value
             star.body.bounce.y = 0.6 + Math.random() * 0.4;
-        
+            star.body.setSize(20, 20, 40, 40);
+            this.stararr.push(star);
 
         }
         
     };
    
 
-    
-
-
-
-
-
 game.state.add('main', game_state.main);
-game.state.start('main');
+//game.state.start('main');
